@@ -5,7 +5,7 @@ short-title: "Home"
 title: "WEBDATA201"
 author-rev: "By Gavin Cooper | 11/10/22"
 show-author-rev: true
-show-outline-table: false
+show-outline-table: true
 ---
 
 # Introduction to web scraping
@@ -16,11 +16,10 @@ There are a variety of ways to scrape a website to extract information for reuse
 
 ## Prerequisites
 
-As webscraping is a technique to extract data from web pages, it requires some understanding of the technologies that are used to display information on the web. This lesson therefore assumes that learners will have some familiarity with HTML and the Document Object Model (DOM).
+As webscraping is a technique to extract data from web pages, it requires some understanding of the technologies that are used to display information on the web. This lesson therefore assumes that learners will have some familiarity with [HTML](https://en.wikipedia.org/wiki/HTML) and the Document Object Model (DOM).
 
-For chapters 2 and 3 of this lesson, all you need is Google Chrome and the Scraper extension.
-
-Chapters 4 and 5 of this lesson introduce the use of specialized libraries to scrape websites by writing custom computer programs and will require some familiarity with the Python programming language and object-oriented programming.
+* For chapters 2 and 3 of this lesson, all you need is Google Chrome and the Scraper extension.
+* Chapters 4 and 5 of this lesson introduce the use of specialized libraries to scrape websites by writing custom computer programs and will require some familiarity with the Python programming language and object-oriented programming.
 
 ## Software requirements
 
