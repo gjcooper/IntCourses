@@ -16,6 +16,7 @@ kramdown:
   input: GFM
 permalink: pretty
 highlighter: rouge
+remote_theme: IntersectAustralia/intersect-training-theme@v1.2.1
 
 sass:
   sass_dir: _sass
