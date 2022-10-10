@@ -30,6 +30,6 @@ collections:
     output: true  # Tell Jekyll to render files in the collection
     title: "WEBDATA201"    # The actual name for the course
     description: "My new content"   # A short description of your site
-    relative_url: "/template"    # The subpath of the the site, e.g. /course-001
-    permalink: /template/:path   # Will render links in format '<course-url>/<document-path>/<base-filename>'
+    relative_url: "/content"    # The subpath of the the site, e.g. /course-001
+    permalink: /content/:path   # Will render links in format '<course-url>/<document-path>/<base-filename>'
     licence: "This course is copyrighted to Intersect Australia"   # A statement of the licencing conditions of your site
