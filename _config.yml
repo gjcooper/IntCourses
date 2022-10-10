@@ -1,6 +1,6 @@
 ######## SITE SETTINGS #########
-title: Gavins WEBDATA201 edits                     # The title of your site
-description: "Changes to the WEBDATA201 content"   # A short description of your site
+title: Gavins Intersect Course edits                     # The title of your site
+description: "Changes to the Intersect content"   # A short description of your site
 repourl: "https://github.com/gjcooper/WEBDATA201_new"      # The URL of the GitHub repository holding your markdown files
 companyurl: "https://intersect.org.au"              # The location to send people when clicking your company logo
 sub-brandurl: "https://learn.intersect.org.au"      # The location to send people to when clicking your company sub-brand logo
