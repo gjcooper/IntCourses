@@ -196,7 +196,7 @@ We can run XPath queries directly from within all major modern browsers, by enab
 
 Here is how the console looks like in the Firefox browser:
 
-![JavaScript console in Firefox]({{ page.root }}/fig/firefox-console.png)
+![JavaScript console in Firefox](../assets/firefox_console.png)
 
 For now, don't worry too much about error messages if you see any in the console when you open it. The console
 should display a _prompt_ with a `> ` character (`>>` in Firefox) inviting you to type commands.
@@ -239,7 +239,7 @@ Using this syntax, XPath thus allows us to determine the exact _path_ to a node.
 > > ## Solution
 > >
 > > ~~~
-> > $x("/html/body/div/article/h1[1]")
+> > $x("/html/body/div/h1[1]")
 > > ~~~
 > > {: .source}
 > >
@@ -261,7 +261,7 @@ within a document and what their relationships with each others are.
 For example, to select all the `blockquote` nodes of this page, we can write
 
 ~~~
-$x("/html/body/div/article/blockquote")
+$x("/html/body/div/blockquote")
 ~~~
 {: .source}
 
