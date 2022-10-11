@@ -2,7 +2,7 @@
 layout: home
 ---
 
-This site is a remake of WEBDATA201 for a course
+This site is a for remakes of Intersect courses
 
 <div class="card-deck">
   <div class="card">
