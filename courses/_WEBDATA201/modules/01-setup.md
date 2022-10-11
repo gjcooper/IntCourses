@@ -2,15 +2,13 @@
 layout: module
 show-in-nav-bar: true
 short-title: "Mod. 1"
-title:  "Setup"
+title:  "Setup Instructions"
 show-objectives: false
 objectives:
 - How to setup for the course
 show-in-outline: true
 outline-number: 1
 ---
-
-# Setup Instructions
 
 In order to follow this lesson, you will need to make sure the following software is installed on your computer.
 
