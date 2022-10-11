@@ -66,19 +66,14 @@ This is how this page appears in October 2022:
 
 ![Screenshot of the Legislative Assembly websit](../assets/screenshot_act.png)
 
-There are several features (circled in the image above) that make the data on this page easier to work with.
-The search, reorder, refine features and display modes hint that the data is actually stored in a (structured)
-database before being displayed on this page. The data can be readily downloaded either as a comma separated values (.csv)
-file or as XML for re-use in their own database, spreadsheet or computer program.
+There are several features (circled in the image above) that we need to know about the data on this page.
+The information we want is laid out in a table, with heading representing the type of information in each column.
+The data can be readily downloaded as an Excel or Word file.
 
-Even though the information displayed in the view above is not labelled, anyone visiting this site with some
-knowledge of ACT geography and politics can see what information pertains to the
-politicians' names, the geographical area they come from and the political party they represent. This is because human
-beings are good at using context and prior knowledge to quickly categorise information.
-
+We can easily see the information we want laid out before us.
 Computers, on the other hand, cannot do this unless we provide them with more information.
 Fortunately, if we examine the source HTML code of this page, we can see that the information displayed is actually
-organised inside labelled elements:
+organised in a relatively structured way:
 
 ~~~
 (...)
@@ -128,11 +123,10 @@ the ALP and list their names and information.
 >
 {: .callout}
 
-
 One thing about this data is that it has been structured for displaying purposes (it is arranged in rows inside
 a table) but the different elements of information are not clearly labelled other than for the table header.
 
-What if we wanted to download this dataset and, for example, compare it with the Canadian list of MPs
+What if we wanted to download this dataset and, for example, compare it with a list of MP's from NSW
 to analyze gender representation, or the representation of political forces in the two groups?
 We could try copy-pasting the entire table into a spreadsheet or even manually
 copy-pasting the names and parties in another document, but this can quickly become impractical when
