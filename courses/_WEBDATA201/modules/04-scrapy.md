@@ -209,18 +209,18 @@ We just need to replace `<SCRAPER NAME>` with the name we want to give our spide
 the URL we want to spider to crawl. In our case, we can type:
 
 ~~~
-scrapy genspider mppaddresses www.ontla.on.ca/web/members/members_current.do?locale=en
+scrapy genspider mpaddresses www.ontla.on.ca/web/members/members_current.do?locale=en
 ~~~
 {: .source}
 
-This will create a file called `mppaddresses.py` inside the `spiders` directory of our project.
+This will create a file called `mpaddresses.py` inside the `spiders` directory of our project.
 Using our favourite text editor, let's open that file. It should look something like this:
 
 ~~~
 import scrapy
 
-class MppaddressesSpider(scrapy.Spider):
-    name = "mppaddresses"  # The name of this spider
+class MpaddressesSpider(scrapy.Spider):
+    name = "mpaddresses"  # The name of this spider
 	
     # The allowed domain and the URLs where the spider should start crawling:
     allowed_domains = ["www.ontla.on.ca/web/members/members_current.do?locale=en"]
@@ -248,7 +248,7 @@ first creating a spider.
 
 > ## Object-oriented programming and Python classes
 >
-> You might be unfamiliar with the `class MppaddressesSpider(scrapy.Spider)` syntax used above.
+> You might be unfamiliar with the `class MpaddressesSpider(scrapy.Spider)` syntax used above.
 > This is an example of [Object-oriented programming](https://en.wikipedia.org/wiki/Object-oriented_programming).
 >
 > All elements of a piece of Python code are __objects__: functions, variables, strings, integers, etc.
@@ -265,7 +265,7 @@ first creating a spider.
 > attributes and methods of `Pet` (dogs have names and can run and cuddle) but would __extend__ the `Pet` class
 > by adding dog-specific things like a `pedigree` attribute and a `bark()` method.
 >
-> The code in the example above is defining a __class__ called `MppaddressesSpider` that __inherits__ the `Spider` class
+> The code in the example above is defining a __class__ called `MpaddressesSpider` that __inherits__ the `Spider` class
 > defined by Scrapy (hence the `scrapy.Spider` syntax). We are __extending__ the default `Spider` class by defining
 > the `name`, `allowed_domains` and `start_urls` attributes, as well as the `parse()` method.
 >
@@ -331,13 +331,13 @@ has automatically generated.
  
 Here is what the spider looks like after cleaning the code a little:
 
-(editing `actmps/actmps/spiders/mppaddresses.py`)
+(editing `actmps/actmps/spiders/mpaddresses.py`)
 
 ~~~
 import scrapy
 
-class MppaddressesSpider(scrapy.Spider):
-    name = "mppaddresses"  
+class MpaddressesSpider(scrapy.Spider):
+    name = "mpaddresses"  
 	
     allowed_domains = ["www.ontla.on.ca"]
     start_urls = ['http://www.ontla.on.ca/web/members/members_current.do?locale=en/']
@@ -356,15 +356,15 @@ we are located in the project's top level directory (where the `scrapy.cfg` file
 `cd` as required, then we can run:
 
 ~~~
-scrapy crawl mppaddresses
+scrapy crawl mpaddresses
 ~~~
 {: .source}
 
-Note that we can now use the name we have chosen for our spider (`mppaddresses`, as specified in the `name` attribute)
+Note that we can now use the name we have chosen for our spider (`mpaddresses`, as specified in the `name` attribute)
 to call it. This should produce the following result
 
 ~~~
-2016-11-07 22:28:51 [scrapy] INFO: Scrapy 1.3.2 started (bot: mppaddresses)
+2016-11-07 22:28:51 [scrapy] INFO: Scrapy 1.3.2 started (bot: mpaddresses)
 
 (followed by a bunch of debugging output ending with:)
 
@@ -400,13 +400,13 @@ and that data (the actual HTML content of that page) was sent back in response.
 However, we didn't do anything with it, because the `parse` method in our spider is currently empty.
 Let's change that by editing the spider as follows (note the contents of the `parse` method):
 
-(editing `actmps/actmps/spiders/mppaddresses.py`)
+(editing `actmps/actmps/spiders/mpaddresses.py`)
 
 ~~~
 import scrapy
 
-class MppaddressesSpider(scrapy.Spider):
-    name = "mppaddresses"
+class MpaddressesSpider(scrapy.Spider):
+    name = "mpaddresses"
     allowed_domains = ["www.ontla.on.ca"]
     start_urls = ['http://www.ontla.on.ca/web/members/members_current.do?locale=en/']
 
@@ -419,7 +419,7 @@ class MppaddressesSpider(scrapy.Spider):
 Now, if we go back to the command line and run our spider again
 
 ~~~
-scrapy crawl mppaddresses
+scrapy crawl mpaddresses
 ~~~
 {: .source}
 
