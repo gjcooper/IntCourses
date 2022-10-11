@@ -239,7 +239,7 @@ Using this syntax, XPath thus allows us to determine the exact _path_ to a node.
 > > ## Solution
 > >
 > > ~~~
-> > $x("/html/body/div/h1[1]")
+> > $x("/html/body/div/h1[2]")
 > > ~~~
 > > {: .source}
 > >

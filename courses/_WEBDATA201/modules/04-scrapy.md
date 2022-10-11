@@ -80,7 +80,7 @@ Scrapy 1.3.2
 If you have a newer version, you should be fine as well.
 
 To introduce the use of Scrapy, we will reuse the same example we used in the previous
-section. We will start by scraping a list of URLs from [the list of members of the Ontario Legislative
+section. We will start by scraping a list of URLs from [the list of members of the ACT Legislative
 Assembly](http://www.ontla.on.ca/web/members/members_current.do?locale=en) and then visit those URLs to
 scrape [detailed information](http://www.ontla.on.ca/web/members/members_detail.do?locale=en&ID=7085)
 about those ministers.
@@ -94,20 +94,22 @@ Carpentry's lesson about the [UNIX shell](http://swcarpentry.github.io/shell-nov
 unsure about how to do that). Then, type the following
 
 ~~~
-scrapy startproject ontariompps
+scrapy startproject actmps
 ~~~
 {: .source}
 
-where `ontariompps` is the name of our project.
+where `actmps` is the name of our project.
 
 Scrapy should respond will something similar to (the paths will reflect your own file structure)
 
 ~~~
-New Scrapy project 'ontariompps', using template directory '/Users/thomas/anaconda/lib/python3.5/site-packages/scrapy/templates/project', created in:
-    /Users/thomas/Documents/Computing/python-projects/scrapy/ontariompps
+New Scrapy project 'actmps', using template directory '/Users/thomas/anaconda/lib/python3.5/site-packages/scrapy/templates/project', created in:
+    /Users/thomas/Documents/Computing/python-projects/scrapy/actmps
+
 
 You can start your first spider with:
-    cd ontariompps
+    cd actmps
+
     scrapy genspider example example.com
 ~~~
 {: .output}
@@ -122,7 +124,7 @@ ls -F
 we should see that a new directory was created:
 
 ~~~
-ontariompps/
+actmps/
 ~~~
 {: .output}
 
@@ -130,7 +132,7 @@ ontariompps/
 directory
 
 ~~~
-cd ontariompps
+cd actmps
 ~~~
 {: .source}
 
@@ -142,15 +144,15 @@ ls -F
 {: .source}
 
 ~~~
-ontariompps/	scrapy.cfg
+actmps/	scrapy.cfg
 ~~~
 {: .output}
 
-Yes, confusingly, Scrapy creates a subdirectory called `ontariompps` within the `ontariompps` project
+Yes, confusingly, Scrapy creates a subdirectory called `actmps` within the `actmps` project
 directory. Inside that _second_ directory, we see a bunch of additional files:
 
 ~~~
-ls -F ontariompps
+ls -F actmps
 ~~~
 {: .source}
 
@@ -163,10 +165,11 @@ __pycache__	pipelines.py	spiders/
 To recap, here is the structure that `scrapy startproject` created:
 
 ~~~
-ontariompps/			# the root project directory
+actmps/			# the root project directory
 	scrapy.cfg		# deploy configuration file
 
-	ontariompps/		# project's Python module, you'll import your code from here
+	actmps
+/		# project's Python module, you'll import your code from here
 		__init__.py
 
 		items.py		# project items file
@@ -328,7 +331,7 @@ has automatically generated.
  
 Here is what the spider looks like after cleaning the code a little:
 
-(editing `ontariompps/ontariompps/spiders/mppaddresses.py`)
+(editing `actmps/actmps/spiders/mppaddresses.py`)
 
 ~~~
 import scrapy
@@ -397,7 +400,7 @@ and that data (the actual HTML content of that page) was sent back in response.
 However, we didn't do anything with it, because the `parse` method in our spider is currently empty.
 Let's change that by editing the spider as follows (note the contents of the `parse` method):
 
-(editing `ontariompps/ontariompps/spiders/mppaddresses.py`)
+(editing `actmps/actmps/spiders/mppaddresses.py`)
 
 ~~~
 import scrapy
@@ -429,7 +432,7 @@ ls -F
 {: .source}
 
 ~~~
-ontariompps/	scrapy.cfg	test.html
+actmps/	scrapy.cfg	test.html
 ~~~
 {: .output}
 
@@ -687,7 +690,7 @@ to get the "content" that the `selectors` are pointing to, the following methods
 Since we have an XPath query we know will extract the URLs we are looking for, we can now use
 the `xpath()` method and update the spider accordingly:
 
-(editing `ontariompps/ontariompps/spiders/mppaddresses.py`)
+(editing `actmps/actmps/spiders/mppaddresses.py`)
 
 ~~~
 import scrapy
@@ -729,7 +732,7 @@ scrapy crawl mppaddresses
 which produces a result similar to:
 
 ~~~
-2017-02-26 23:06:10 [scrapy.utils.log] INFO: Scrapy 1.3.2 started (bot: ontariompps)
+2017-02-26 23:06:10 [scrapy.utils.log] INFO: Scrapy 1.3.2 started (bot: actmps)
 (...)
 http://www.ontla.on.ca/web/members/members_detail.do?locale=en&ID=2111
 http://www.ontla.on.ca/web/members/members_detail.do?locale=en&ID=2139
@@ -799,7 +802,7 @@ our spider to instruct it to visit those pages one by one.
 For this, let's begin by defining a new method `get_details` that we want to run on the detail pages:
 
 
-(editing `ontariompps/ontariompps/spiders/mppaddresses.py`)
+(editing `actmps/actmps/spiders/mppaddresses.py`)
 
 ~~~
 import scrapy
@@ -848,7 +851,7 @@ We should see the result of our `print` statements intersped with the regular Sc
 debugging output, something like:
 
 ~~~
-2017-02-27 20:39:42 [scrapy.utils.log] INFO: Scrapy 1.3.2 started (bot: ontariompps)
+2017-02-27 20:39:42 [scrapy.utils.log] INFO: Scrapy 1.3.2 started (bot: actmps)
 (...)
 2017-02-27 20:39:43 [scrapy.core.engine] DEBUG: Crawled (200) <GET http://www.ontla.on.ca/web/members/members_current.do?locale=en/> (referer: None)
 Found URL: http://www.ontla.on.ca/web/members/members_detail.do?locale=en&ID=7085
