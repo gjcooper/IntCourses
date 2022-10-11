@@ -8,12 +8,9 @@ show-in-outline: false
 
 In order to follow this lesson, you will need to make sure the following software is installed on your computer.
 
-## Part one: Manually scrape data using browser extensions
+## Part one: Manually scrape data using a browser
 
-For the first half of the lesson, we will use a Chrome browser extension to get started with web scraping.
-
-1. Please ensure you have a working copy of the [Chrome browser](https://www.google.com/intl/en/chrome/browser/).
-2. Using Chrome, download and enable the [Scraper extension](https://chrome.google.com/webstore/detail/scraper/mbigbapnjcgaffohmbkdlecaccepngjd).
+For the first half of the lesson, we will use inbuilt browser functionality to get familiar with HTML, XPath and web scraping.
 
 ## Part two: Write Python programs to automatically scrape data
 
