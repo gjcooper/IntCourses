@@ -1,7 +1,8 @@
 ---
+layout: module
+show-in-nav-bar: true
+short-title: "Mod. 1"
 title: "Introduction: What is web scraping?"
-teaching: 10
-exercises: 0
 questions:
 - "What is web scraping and why is it useful?"
 - "What are typical use cases for web scraping?"
@@ -13,6 +14,8 @@ keypoints:
 - "Humans are good at categorizing information, computers not so much."
 - "Often, data on a web site is not properly structured, making its extraction difficult."
 - "Web scraping is the process of automating the extraction of data from web sites."
+show-in-outline: true
+outline-number: 1
 ---
 
 ## What is web scraping?

@@ -1,7 +1,8 @@
 ---
+layout: module
+show-in-nav-bar: true
+short-title: "Mod. 3"
 title: "Manually scrape data using browser extensions"
-teaching: 45
-exercises: 20
 questions:
 - "How can I get started scraping data off the web?"
 - "How can I use XPath to more accurately select what data to scrape?"
@@ -14,6 +15,8 @@ keypoints:
 - "More often than not, web scraping tools need to be told what to scrape."
 - "XPath can be used to define what information to scrape, and how to structure it."
 - "More advanced data cleaning operations are best done in a subsequent step."
+show-in-outline: true
+outline-number: 3
 ---
 
 # Using the Scraper Chrome extension

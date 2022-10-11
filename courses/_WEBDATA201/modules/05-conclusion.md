@@ -1,7 +1,8 @@
 ---
+layout: module
+show-in-nav-bar: true
+short-title: "Mod. 5"
 title: "Conclusion"
-teaching: 15
-exercises: 15
 questions:
 - "When is web scraping OK and when is it not?"
 - "Is web scraping legal? Can I get into trouble?"
@@ -15,6 +16,8 @@ keypoints:
 - "Web scraping is, in general, legal and won't get you into trouble."
 - "There are a few things to be careful about, notably don't overwhelm a web server and don't steal content."
 - "Be nice. In doubt, ask."
+show-in-outline: true
+outline-number: 5
 ---
 
 Now that we have seen several different ways to scrape data from websites and are

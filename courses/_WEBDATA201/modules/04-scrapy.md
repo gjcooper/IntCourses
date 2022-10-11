@@ -1,7 +1,8 @@
 ---
+layout: module
+show-in-nav-bar: true
+short-title: "Mod. 4"
 title: "Web scraping using Python and Scrapy"
-teaching: 90
-exercises: 30
 questions:
 - "How can scraping a web site be automated?"
 - "How can I setup a scraping project using the Scrapy framework for Python?"
@@ -22,6 +23,8 @@ keypoints:
 - "With Scrapy, we can use XPath, CSS selectors and Regular Expressions to define what elements to scrape from a page."
 - "Extracted data can be stored in \"Item\" objects. Such objects must be defined before they can be used."
 - "Scrapy will automatically stored extracted data in CSS, JSON or XML format based on the file extension given in the -o option."
+show-in-outline: true
+outline-number: 4
 ---
 
 ## Recap

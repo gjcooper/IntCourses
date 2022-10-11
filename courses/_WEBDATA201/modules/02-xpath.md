@@ -1,7 +1,8 @@
 ---
+layout: module
+show-in-nav-bar: true
+short-title: "Mod. 2"
 title: "Selecting content on a web page with XPath"
-teaching: 30
-exercises: 15
 questions:
 - "How can I select a specific element on web page?"
 - "What is XPath and how can I use it?"
@@ -19,6 +20,8 @@ keypoints:
 - "Relationships between nodes are: parent, child, sibling."
 - "XPath queries are constructed as paths going up or down the node tree."
 - "XPath queries can be run in the browser using the `$x()` function."
+show-in-outline: true
+outline-number: 2
 ---
 Before we delve into web scraping proper, we will first spend some time introducing
 some of the techniques that are required to indicate exactly what should be
