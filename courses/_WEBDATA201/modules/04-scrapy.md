@@ -73,16 +73,15 @@ scrapy version
 in a shell. If all is good, you should get the following back (as of February 2017):
 
 ~~~
-Scrapy 1.3.2
+Scrapy 2.3.0
 ~~~
 {: .output}
 
 If you have a newer version, you should be fine as well.
 
-To introduce the use of Scrapy, we will reuse the same example we used in the previous
-section. We will start by scraping a list of URLs from [the list of members of the ACT Legislative
-Assembly](http://www.ontla.on.ca/web/members/members_current.do?locale=en) and then visit those URLs to
-scrape [detailed information](http://www.ontla.on.ca/web/members/members_detail.do?locale=en&ID=7085)
+To introduce the use of Scrapy, we will use the a new example to what we used in the previous
+section. We will start by scraping a list of URLs from [the list of senators from the Australian Parliament](https://www.aph.gov.au/Senators_and_Members/Parliamentarian_Search_Results) and then visit those URLs to
+scrape [detailed information](https://www.aph.gov.au/Senators_and_Members/Parliamentarian?MPID=R36)
 about those ministers.
 
 ## Setup a new Scrapy project
@@ -197,34 +196,34 @@ Their general structure is as follows:
   avoid mistakenly writing an out-of-hand spider that mistakenly starts crawling the entire Internet...)
 * A method called `parse` in which we will write what data the spider should be looking for on the pages
   it visits, what links to follow and how to parse found data.
-  
+
 To create a spider, Scrapy provides a handy command-line tool:
 
 ~~~
 scrapy genspider <SCRAPER NAME> <START URL>
 ~~~
 {: .source}
-  
+
 We just need to replace `<SCRAPER NAME>` with the name we want to give our spider and `<START URL>` with
 the URL we want to spider to crawl. In our case, we can type:
 
 ~~~
-scrapy genspider mpaddresses www.ontla.on.ca/web/members/members_current.do?locale=en
+scrapy genspider au_gov_sen www.aph.gov.au/Senators_and_Members/Parliamentarian_Search_Results
 ~~~
 {: .source}
 
-This will create a file called `mpaddresses.py` inside the `spiders` directory of our project.
+This will create a file called `au_gov_sen.py` inside the `spiders` directory of our project.
 Using our favourite text editor, let's open that file. It should look something like this:
 
 ~~~
 import scrapy
 
-class MpaddressesSpider(scrapy.Spider):
-    name = "mpaddresses"  # The name of this spider
+class AuGovSenSpider(scrapy.Spider):
+    name = "au_gov_sen"  # The name of this spider
 	
     # The allowed domain and the URLs where the spider should start crawling:
-    allowed_domains = ["www.ontla.on.ca/web/members/members_current.do?locale=en"]
-    start_urls = ['http://www.ontla.on.ca/web/members/members_current.do?locale=en/']
+    allowed_domains = ["www.aph.gov.au/Senators_and_Members/Parliamentarian_Search_Results"]
+    start_urls = ['http://www.aph.gov.au/Senators_and_Members/Parliamentarian_Search_Results/']
 	
     # And a 'parse' function, which is the main method of the spider. The content of the scraped
     # URL is passed on as the 'response' object:
@@ -248,7 +247,7 @@ first creating a spider.
 
 > ## Object-oriented programming and Python classes
 >
-> You might be unfamiliar with the `class MpaddressesSpider(scrapy.Spider)` syntax used above.
+> You might be unfamiliar with the `class AuGovSenSpider(scrapy.Spider)` syntax used above.
 > This is an example of [Object-oriented programming](https://en.wikipedia.org/wiki/Object-oriented_programming).
 >
 > All elements of a piece of Python code are __objects__: functions, variables, strings, integers, etc.
@@ -265,7 +264,7 @@ first creating a spider.
 > attributes and methods of `Pet` (dogs have names and can run and cuddle) but would __extend__ the `Pet` class
 > by adding dog-specific things like a `pedigree` attribute and a `bark()` method.
 >
-> The code in the example above is defining a __class__ called `MpaddressesSpider` that __inherits__ the `Spider` class
+> The code in the example above is defining a __class__ called `AuGovSenSpider` that __inherits__ the `Spider` class
 > defined by Scrapy (hence the `scrapy.Spider` syntax). We are __extending__ the default `Spider` class by defining
 > the `name`, `allowed_domains` and `start_urls` attributes, as well as the `parse()` method.
 >
@@ -276,24 +275,24 @@ first creating a spider.
 > A `Spider` class will define how a certain site (or a group of sites, defined in `start_urls`) will be scraped,
 > including how to perform the crawl (i.e. follow links) and how to extract structured data from their pages
 > (i.e. scraping items) in the `parse()` method.
-> 
+>
 > In other words, Spiders are the place where we define the custom behaviour for crawling and parsing
 > pages for a particular site (or, in some cases, a group of sites).
 >
 {: .callout}
 
 Once we have the spider open in a text editor, we can start by cleaning up a little the code that Scrapy
-has automatically generated. 
- 
+has automatically generated.
+
 > ## Paying attention to `allowed_domains`
 >
-> Looking at the code that was generated by `genspider`, we see that by default the entire start URL 
-> has ended up in the `allowed_domains` attribute. 
-> 
+> Looking at the code that was generated by `genspider`, we see that by default the entire start URL
+> has ended up in the `allowed_domains` attribute.
+>
 > Is this desired? What do you think would happen
-> if later in our code we wanted to scrape a page living at the address `www.ontla.on.ca/web/members/members_detail.do?locale=en&ID=7085`?
+> if later in our code we wanted to scrape a page living at the address `www.parliament.act.gov.au/members/tenth-assembly-members/kurrajong/barr-andrew2`?
 > > ## Solution
-> > 
+> >
 > > `allowed_domains` is a safeguard for our spider, it will restrict its ability to scrape pages
 > > outside of a certain realm. An URL is structured as a path to a resource, with the root directory
 > > at the beginning and a set of "subdirectories" after that. In `www.mydomain.ca/house/dog.html`,
@@ -305,10 +304,10 @@ has automatically generated.
 > > subdirectories), but not, say, pages that would be in `www.mydomain.ca/garage/`. However,
 > > if we set `allowed_domains = ["www.mydomain.ca/"]`, the spider can scrape both the contents of
 > > the `house/` and `garage/` directories.
-> > 
-> > To answer the question, leaving `allowed_domains = ["www.ontla.on.ca/web/members/members_current.do?locale=en"]`
-> > would restrict the spider to pages with URLs of the same pattern, and 
-> > `http://www.ontla.on.ca/web/members/members_detail.do?locale=en&ID=7085`
+> >
+> > To answer the question, leaving `allowed_domains = ["www.parliament.act.gov.au/members/members-of-the-assembly"]`
+> > would restrict the spider to pages with URLs of the same pattern, and
+> > `www.parliament.act.gov.au/members/tenth-assembly-members/kurrajong/barr-andrew2`
 > > if of a different pattern, so Scrapy would prevent the spider from scraping it.
 > >
 > {: .solution}
@@ -316,31 +315,31 @@ has automatically generated.
 > How should `allowed_domains` be set to prevent this from happening?
 >
 > > ## Solution
-> > 
-> > We should let the spider scrape all pages inside the `www.ontla.on.ca` domain by editing
+> >
+> > We should let the spider scrape all pages inside the `www.parliament.act.gov.au` domain by editing
 > > it so that it reads:
 > >
 > > ~~~
-> > allowed_domains = ["www.ontla.on.ca"]
+> > allowed_domains = ["www.parliament.act.gov.au"]
 > > ~~~
 > > {: .source}
 > >
 > {: .solution}
 >
-{: .challenge} 
- 
+{: .challenge}
+
 Here is what the spider looks like after cleaning the code a little:
 
-(editing `actmps/actmps/spiders/mpaddresses.py`)
+(editing `actmps/actmps/spiders/au_gov_sen.py`)
 
 ~~~
 import scrapy
 
-class MpaddressesSpider(scrapy.Spider):
-    name = "mpaddresses"  
+class AuGovSenSpider(scrapy.Spider):
+    name = "au_gov_sen"
 	
-    allowed_domains = ["www.ontla.on.ca"]
-    start_urls = ['http://www.ontla.on.ca/web/members/members_current.do?locale=en/']
+    allowed_domains = ["www.aph.gov.au"]
+    start_urls = ['http://www.aph.gov.au/Senators_and_Members/Parliamentarian_Search_Results/']
 
     def parse(self, response):
         pass
@@ -356,38 +355,46 @@ we are located in the project's top level directory (where the `scrapy.cfg` file
 `cd` as required, then we can run:
 
 ~~~
-scrapy crawl mpaddresses
+scrapy crawl au_gov_sen
 ~~~
 {: .source}
 
-Note that we can now use the name we have chosen for our spider (`mpaddresses`, as specified in the `name` attribute)
+Note that we can now use the name we have chosen for our spider (`au_gov_sen`, as specified in the `name` attribute)
 to call it. This should produce the following result
 
 ~~~
-2016-11-07 22:28:51 [scrapy] INFO: Scrapy 1.3.2 started (bot: mpaddresses)
+2016-11-07 22:28:51 [scrapy] INFO: Scrapy 1.3.2 started (bot: au_gov_sen)
 
 (followed by a bunch of debugging output ending with:)
 
-2017-02-26 22:08:51 [scrapy.core.engine] DEBUG: Crawled (200) <GET http://www.ontla.on.ca/web/members/members_current.do?locale=en/> (referer: None)
-2017-02-26 22:08:52 [scrapy.core.engine] INFO: Closing spider (finished)
-2017-02-26 22:08:52 [scrapy.statscollectors] INFO: Dumping Scrapy stats:
-{'downloader/request_bytes': 477,
- 'downloader/request_count': 2,
- 'downloader/request_method_count/GET': 2,
- 'downloader/response_bytes': 34187,
- 'downloader/response_count': 2,
+2022-10-12 05:18:58 [scrapy.core.engine] DEBUG: Crawled (200) <GET https://www.aph.gov.au/Senators_and_Members/Parliamentarian_Search_Results/> (referer: None)
+2022-10-12 05:18:59 [scrapy.core.engine] INFO: Closing spider (finished)
+2022-10-12 05:18:59 [scrapy.statscollectors] INFO: Dumping Scrapy stats:
+{'downloader/request_bytes': 980,
+ 'downloader/request_count': 4,
+ 'downloader/request_method_count/GET': 4,
+ 'downloader/response_bytes': 68447,
+ 'downloader/response_count': 4,
  'downloader/response_status_count/200': 2,
+ 'downloader/response_status_count/301': 2,
+ 'elapsed_time_seconds': 1.306556,
  'finish_reason': 'finished',
- 'finish_time': datetime.datetime(2017, 2, 27, 3, 8, 52, 16404),
- 'log_count/DEBUG': 3,
- 'log_count/INFO': 7,
+ 'finish_time': datetime.datetime(2022, 10, 12, 5, 18, 59, 6296),
+ 'log_count/DEBUG': 4,
+ 'log_count/INFO': 10,
+ 'log_count/WARNING': 1,
+ 'memusage/max': 52572160,
+ 'memusage/startup': 52572160,
  'response_received_count': 2,
- 'scheduler/dequeued': 1,
- 'scheduler/dequeued/memory': 1,
- 'scheduler/enqueued': 1,
- 'scheduler/enqueued/memory': 1,
- 'start_time': datetime.datetime(2017, 2, 27, 3, 8, 51, 594573)}
-2017-02-26 22:08:52 [scrapy.core.engine] INFO: Spider closed (finished)
+ 'robotstxt/request_count': 1,
+ 'robotstxt/response_count': 1,
+ 'robotstxt/response_status_count/200': 1,
+ 'scheduler/dequeued': 2,
+ 'scheduler/dequeued/memory': 2,
+ 'scheduler/enqueued': 2,
+ 'scheduler/enqueued/memory': 2,
+ 'start_time': datetime.datetime(2022, 10, 12, 5, 18, 57, 699740)}
+2022-10-12 05:18:59 [scrapy.core.engine] INFO: Spider closed (finished)
 
 ~~~
 {: .output}
@@ -400,15 +407,15 @@ and that data (the actual HTML content of that page) was sent back in response.
 However, we didn't do anything with it, because the `parse` method in our spider is currently empty.
 Let's change that by editing the spider as follows (note the contents of the `parse` method):
 
-(editing `actmps/actmps/spiders/mpaddresses.py`)
+(editing `actmps/actmps/spiders/au_gov_sen.py`)
 
 ~~~
 import scrapy
 
-class MpaddressesSpider(scrapy.Spider):
-    name = "mpaddresses"
-    allowed_domains = ["www.ontla.on.ca"]
-    start_urls = ['http://www.ontla.on.ca/web/members/members_current.do?locale=en/']
+class AuGovSenSpider(scrapy.Spider):
+    name = "au_gov_sen"
+    allowed_domains = ["www.aph.gov.au"]
+    start_urls = ['http://www.aph.gov.au/Senators_and_Members/Parliamentarian_Search_Results/']
 
     def parse(self, response):
         with open("test.html", 'wb') as file:
@@ -419,7 +426,7 @@ class MpaddressesSpider(scrapy.Spider):
 Now, if we go back to the command line and run our spider again
 
 ~~~
-scrapy crawl mpaddresses
+scrapy crawl au_gov_sen
 ~~~
 {: .source}
 
@@ -458,66 +465,58 @@ Current MPPs</title>
 
 ## Defining which elements to scrape using XPath
 
-Now that we know how to access the content of the [web page with the list of all Ontario MPPs](http://www.ontla.on.ca/web/members/members_current.do?locale=en),
+Now that we know how to access the content of the [web page with the list of Australian Senators](https://www.aph.gov.au/Senators_and_Members/Parliamentarian_Search_Results),
 the next step is to extract the information we are interested in, in that case the URLs pointing
 to the detail pages for each politician.
 
 Using the techniques we have [learned earlier](/02-xpath), we can start by looking at
-the source code for our [target page](http://www.ontla.on.ca/web/members/members_current.do?locale=en)
+the source code for our [target page](https://www.aph.gov.au/Senators_and_Members/Parliamentarian_Search_Results)
 by using either the "View Source" or "Inspect" functions of our browser.
 Here is an excerpt of that page:
 
 ~~~
 (...)
-<div class="tablebody">
-	<table>
-		<tr class="oddrow" id="MemberID7085">
-			<td class="mppcell" >
-				<a href="members_detail.do?locale=en&amp;ID=7085">
-					Albanese, Hon Laura&nbsp;
-				</a>
-			</td>
-			<td class="ridingcell" >
-				York South&#8212;Weston&nbsp;
-			</td>
-		</tr>
-		<tr class="evenrow" id="MemberID7275">
-			<td class="mppcell" >
-				<a href="members_detail.do?locale=en&amp;ID=7275">
-					Anderson, Granville&nbsp;
-				</a>
-			</td>
-			<td class="ridingcell" >
-				Durham&nbsp;
-			</td>
-		</tr>
-		(...)
-	</table>
-</div>
+<div class="search-filter-results search-filter-results-snm row">
+        <div>
+            <div class="row border-bottom padding-top">
+                <div class="medium-push-2 medium-7 large-8  columns">
+                    <h4 class="title">
+                        <a href="/Senators_and_Members/Parliamentarian?MPID=R36">Hon Anthony Albanese MP</a>
+                    </h4>
+                    <dl class="dl--inline__result text-small">
+                        <dt>For</dt>
+                        <dd>Grayndler, New South Wales</dd>
+
+                            <dt>Positions</dt>
+<dd>Prime Minister</dd><dt>Party</dt>
+                            <dd>Australian Labor Party</dd>
+
+                            <dt class="snm-hide-links-content">Connect</dt>
+                            <dd class="snm-hide-links-content">
 (...)
 ~~~
 {: .output}
 
 There are different strategies to target the data we are interested in. One of them is to identify
-that the URLs are inside `td` elements of the class `mppcell`.
+that the URLs are inside `h4` elements of the class `title`. From there the URL is inside a `a` element.
 
-We recall that the XPath syntax to access all such elements is `//td[@class='mppcell']`, which we can
+We recall that the XPath syntax to access all such elements is `$x("//h4[@class='title']/a")`, which we can
 try out in the browser console:
 
 ~~~
-> $x("//td[@class='mppcell']")
+> $x("//h4[@class='title']/a")
 ~~~
 {: .source}
 
 > ## Selecting elements assigned to multiple classes
 >
-> The above XPath works in this case because the target `td` elements are only assigned to the
-> `mppcell` class. It wouldn't work if those elements had more than one class, for example
-> `<td class="mppcell sampleclass">`. The more general syntax to select elements that belong to
-> the `mppcell` class and potentially other classes as well is
+> The above XPath works in this case because the target `h4` elements are only assigned to the
+> `title` class. It wouldn't work if those elements had more than one class, for example
+> `<h4 class="title larger">`. The more general syntax to select elements that belong to
+> the `title` class and potentially other classes as well is
 >
 > ~~~
-> `//*[contains(concat(" ", normalize-space(@class), " "), " mppcell ")]`
+> `//h4[contains(concat(" ", normalize-space(@class), " "), " title ")]`
 > ~~~
 > {: .source}
 >
@@ -530,14 +529,14 @@ Once we were able to confirm that we are targeting the right cells, we can expan
 to only select the `href` attribute of the URL:
 
 ~~~
-> $x("//td[@class='mppcell']/a/@href")
+> $x("//h4[@class='title']/a/@href")
 ~~~
 {: .source}
 
 This returns an array of objects:
 
 ~~~
-<- Array [ href="members_detail.do?locale=en&amp;ID=7085", href="members_detail.do?locale=en&amp;ID=7275", 103 more… ]
+<- Array(12) [ href="/Senators_and_Members/Parliamentarian?MPID=R36", href="/Senators_and_Members/Parliamentarian?MPID=298839", href="/Senators_and_Members/Parliamentarian?MPID=13050", href="/Senators_and_Members/Parliamentarian?MPID=290544", href="/Senators_and_Members/Parliamentarian?MPID=230886", href="/Senators_and_Members/Parliamentarian?MPID=269375", href="/Senators_and_Members/Parliamentarian?MPID=282237", href="/Senators_and_Members/Parliamentarian?MPID=281558", href="/Senators_and_Members/Parliamentarian?MPID=16913", href="/Senators_and_Members/Parliamentarian?MPID=300706", … ]
 ~~~
 {: .output}
 
@@ -551,7 +550,7 @@ queries from within Scrapy.
 This is achieved by calling the _Scrapy shell_ from the command line:
 
 ~~~
-scrapy shell http://www.ontla.on.ca/web/members/members_current.do?locale=en/
+scrapy shell https://www.aph.gov.au/Senators_and_Members/Parliamentarian_Search_Results
 ~~~
 {: .source}
 
@@ -565,15 +564,15 @@ interactive python console because the prompt will have changed to `>>>`:
 2017-02-26 22:31:04 [scrapy.core.engine] DEBUG: Crawled (200) <GET http://www.ontla.on.ca/web/members/members_current.do?locale=en/> (referer: None)
 [s] Available Scrapy objects:
 [s]   scrapy     scrapy module (contains scrapy.Request, scrapy.Selector, etc)
-[s]   crawler    <scrapy.crawler.Crawler object at 0x1114356d8>
+[s]   crawler    <scrapy.crawler.Crawler object at 0x7fab12ca5320>
 [s]   item       {}
-[s]   request    <GET http://www.ontla.on.ca/web/members/members_current.do?locale=en/>
-[s]   response   <200 http://www.ontla.on.ca/web/members/members_current.do?locale=en/>
-[s]   settings   <scrapy.settings.Settings object at 0x111f40908>
-[s]   spider     <DefaultSpider 'default' at 0x11320acc0>
+[s]   request    <GET https://www.aph.gov.au/Senators_and_Members/Parliamentarian_Search_Results>
+[s]   response   <200 https://www.aph.gov.au/Senators_and_Members/Parliamentarian_Search_Results>
+[s]   settings   <scrapy.settings.Settings object at 0x7fab12a8c7b8>
+[s]   spider     <AuGovSenSpider 'au_gov_sen' at 0x7fab120b73c8>
 [s] Useful shortcuts:
 [s]   fetch(url[, redirect=True]) Fetch URL and update local objects (by default, redirects are followed)
-[s]   fetch(req)                  Fetch a scrapy.Request and update local objects 
+[s]   fetch(req)                  Fetch a scrapy.Request and update local objects
 [s]   shelp()           Shell help (print this help)
 [s]   view(response)    View response in a browser
 >>>
@@ -584,15 +583,15 @@ We can now try running the XPath query we just devised against the `response` ob
 contains the downloaded web page:
 
 ~~~
->>> response.xpath("//td[@class='mppcell']/a/@href")
+>>> response.xpath("//h4[@class='title']/a/@href")
 ~~~
 {: .source}
 
 This will return a bunch of `Selector` objects (one for each URL found):
 
 ~~~
-[<Selector xpath="//td[@class='mppcell']/a/@href" data='members_detail.do?locale=en&ID=7085'>, 
- <Selector xpath="//td[@class='mppcell']/a/@href" data='members_detail.do?locale=en&ID=7275'>,
+[<Selector xpath="//h4[@class='title']/a/@href" data='/Senators_and_Members/Parliamentarian...'>,
+ <Selector xpath="//h4[@class='title']/a/@href" data='/Senators_and_Members/Parliamentarian...'>,
  ...]
 >>>
 ~~~
@@ -604,15 +603,15 @@ we can use the `extract()` method. A variant of that method is `extract_first()`
 same thing as `extract()` but only returns the first element if there are more than one:
 
 ~~~
->>> response.xpath("//td[@class='mppcell']/a/@href").extract_first()
+>>> response.xpath("//h4[@class='title']/a/@href").extract_first()
 ~~~
 {: .source}
 
 returns
 
 ~~~
-'members_detail.do?locale=en&ID=7085'
->>> 
+'/Senators_and_Members/Parliamentarian?MPID=R36'
+>>>
 ~~~
 {: .output}
 
@@ -621,7 +620,7 @@ returns
 > Looking at this result and at the source code of the page, we realize that the URLs are all
 > _relative_ to that page. They are all missing part of the URL to become _absolute_ URLs, which
 > we will need if we want to ask our spider to visit those URLs to scrape more data. We could
-> prefix all those URLs with `http://www.ontla.on.ca/web/members/` to make them absolute, but
+> prefix all those URLs with `https://www.aph.gov.au/` to make them absolute, but
 > since this is a common occurence when scraping web pages, Scrapy provides a built-in function
 > to deal with this issue.
 >
@@ -629,7 +628,7 @@ returns
 > variable:
 >
 > ~~~
-> >>> testurl = response.xpath("//td[@class='mppcell']/a/@href").extract_first()
+> >>> testurl = response.xpath("//h4[@class='title']/a/@href").extract_first()
 > ~~~
 > {: .source}
 >
@@ -643,7 +642,7 @@ returns
 > which returns
 >
 > ~~~
-> 'http://www.ontla.on.ca/web/members/members_detail.do?locale=en&ID=7085'
+> 'https://www.aph.gov.au/Senators_and_Members/Parliamentarian?MPID=R36'
 > ~~~
 > {: .output}
 >
@@ -680,11 +679,11 @@ to get the "content" that the `selectors` are pointing to, the following methods
 > is then possible to apply the `xpath()` and `css()` methods a second time in order to further refine
 > a query. Once you've reached the elements you're interested in, you need to call `extract()` or
 > `extract_first()` to get to their contents as string(s).
-> 
+>
 > Whereas `re()` returns a list of strings, and therefore it is no longer possible to apply
 > `xpath()` or `css()` to the results of `re()`. Since it returns a string, you don't need to
 > use `extract()` there.
-> 
+>
 {: .callout}
 
 Since we have an XPath query we know will extract the URLs we are looking for, we can now use
@@ -711,12 +710,12 @@ class MppaddressesSpider(scrapy.Spider):
 > Why are we using `extract()` instead of `extract_first()` in the code above?
 > Why is the `print` statement inside a `for` clause?
 > > ## Solution
-> > 
+> >
 > > We are not only interested in the first extracted URL but in all of them.
 > > `extract_first()` only returns the content of the first in a series of
 > > selected elements, while `extract()` will return all of them in the form of an
 > > array.
-> > 
+> >
 > > The `for` syntax allows us to loop through each of the returned elements one by one.
 > >
 > {: .solution}
@@ -765,19 +764,19 @@ of our project by successfully extracing all URLs leading to the minister profil
 > take advantage of the fact that the `extract()` method returns a list of matching elements.
 > In Python, lists can be _sliced_ using the `list[start:end]` syntax and we can leave out
 > either the `start` or `end` delimiters:
-> 
+>
 > ~~~
 > list[start:end] # items from start through end-1
 > list[start:]    # items from start through the rest of the array
 > list[:end]      # items from the beginning through end-1
 > list[:]         # all items
 > ~~~
-> 
+>
 > We can therefore edit our spider thusly to only scrape the first five URLs:
 >
 > ~~~
 > import scrapy
-> 
+>
 >    class MppaddressesSpider(scrapy.Spider):
 >        name = "mppaddresses"
 >        allowed_domains = ["www.ontla.on.ca"]
@@ -791,7 +790,7 @@ of our project by successfully extracing all URLs leading to the minister profil
 >
 > Note that this only works if there are at least five URLs that are being returned, which
 > is the case here.
-> 
+>
 {: .callout}
 
 ## Recursive scraping
@@ -809,7 +808,7 @@ import scrapy
 
 class MppaddressesSpider(scrapy.Spider):
     name = "mppaddresses" # The name of this spider
-    
+
     # The allowed domain and the URLs where the spider should start crawling:
     allowed_domains = ["www.ontla.on.ca"]
     start_urls = ['http://www.ontla.on.ca/web/members/members_current.do?locale=en/']
@@ -818,19 +817,19 @@ class MppaddressesSpider(scrapy.Spider):
         # The main method of the spider. It scrapes the URL(s) specified in the
         # 'start_url' argument above. The content of the scraped URL is passed on
         # as the 'response' object.
-        
+
         for url in response.xpath("//*[@class='mppcell']/a/@href").extract()[:5]:
             # This loops through all the URLs found inside an element of class 'mppcell'
 			
             # Constructs an absolute URL by combining the response’s URL with a possible relative URL:
             full_url = response.urljoin(url)
             print("Found URL: "+full_url)
-            
+
             # The following tells Scrapy to scrape the URL in the 'full_url' variable
             # and calls the 'get_details() method below with the content of this
             # URL:
             yield scrapy.Request(full_url, callback=self.get_details)
-    
+
     def get_details(self, response):
         # This method is called on by the 'parse' method above. It scrapes the URLs
         # that have been extracted in the previous step.
@@ -892,7 +891,7 @@ for now) have been first "found" (by the `parse()` method) and then "visited"
 >
 > If you want to know more, the Scrapy documentation
 > [has a page detailing how the data flows between Scrapy's components ](https://doc.scrapy.org/en/latest/topics/architecture.html#topics-architecture).
-> 
+>
 {: .callout}
 
 ## Scrape the detail pages
@@ -1014,7 +1013,7 @@ import scrapy
 
 class MppaddressesSpider(scrapy.Spider):
     name = "mppaddresses" # The name of this spider
-    
+
     # The allowed domain and the URLs where the spider should start crawling:
     allowed_domains = ["www.ontla.on.ca"]
     start_urls = ['http://www.ontla.on.ca/web/members/members_current.do?locale=en/']
@@ -1023,19 +1022,19 @@ class MppaddressesSpider(scrapy.Spider):
         # The main method of the spider. It scrapes the URL(s) specified in the
         # 'start_url' argument above. The content of the scraped URL is passed on
         # as the 'response' object.
-        
+
         for url in response.xpath("//*[@class='mppcell']/a/@href").extract()[:5]:
             # This loops through all the URLs found inside an element of class 'mppcell'
 			
             # Constructs an absolute URL by combining the response’s URL with a possible relative URL:
             full_url = response.urljoin(url)
             print("Found URL: "+full_url)
-            
+
             # The following tells Scrapy to scrape the URL in the 'full_url' variable
             # and calls the 'get_details() method below with the content of this
             # URL:
             yield scrapy.Request(full_url, callback=self.get_details)
-    
+
     def get_details(self, response):
         # This method is called on by the 'parse' method above. It scrapes the URLs
         # that have been extracted in the previous step.
@@ -1123,7 +1122,7 @@ from ontariompps.items import OntariomppsItem # We need this so that Python know
 
 class MppaddressesSpider(scrapy.Spider):
     name = "mppaddresses" # The name of this spider
-    
+
     # The allowed domain and the URLs where the spider should start crawling:
     allowed_domains = ["www.ontla.on.ca"]
     start_urls = ['http://www.ontla.on.ca/web/members/members_current.do?locale=en/']
@@ -1135,7 +1134,7 @@ class MppaddressesSpider(scrapy.Spider):
 		
         for url in response.xpath("//*[@class='mppcell']/a/@href").extract()[:5]:
             # This loops through all the URLs found inside an element of class 'mppcell'
-            
+
             # Constructs an absolute URL by combining the response’s URL with a possible relative URL:
             full_url = response.urljoin(url)
             print("Found URL: "+full_url)
@@ -1144,17 +1143,17 @@ class MppaddressesSpider(scrapy.Spider):
             # and calls the 'get_details() method below with the content of this
             # URL:
             yield scrapy.Request(full_url, callback=self.get_details)
-    
+
     def get_details(self, response):
         # This method is called on by the 'parse' method above. It scrapes the URLs
         # that have been extracted in the previous step.
-        
+
         item = OntariomppsItem() # Creating a new Item object
         # Store scraped data into that item:
         item['name'] = response.xpath("normalize-space(//div[@class='mppdetails']/h1/text())").extract_first()
         item['phone'] = response.xpath("normalize-space(//div[@class='phone']/text())").extract_first()
         item['email'] = response.xpath("normalize-space(//div[@class='email']/a/text())").extract_first()
-	    
+
         # Return that item to the main spider method:
         yield item
 
@@ -1167,7 +1166,7 @@ We made two significant changes to the file above:
 * We've also replaced the `print` statements in `get_details()` with the creation of an `OntariomppsItem`
   object, in which fields we are now storing the scraped data. The item is then passed back to the
   main spider method using the `yield` statement.
-  
+
 If we now run our spider again:
 
 ~~~
@@ -1243,7 +1242,7 @@ from ontariompps.items import OntariomppsItem # We need this so that Python know
 
 class MppaddressesSpider(scrapy.Spider):
     name = "mppaddresses" # The name of this spider
-    
+
     # The allowed domain and the URLs where the spider should start crawling:
     allowed_domains = ["www.ontla.on.ca"]
     start_urls = ['http://www.ontla.on.ca/web/members/members_current.do?locale=en/']
@@ -1254,26 +1253,26 @@ class MppaddressesSpider(scrapy.Spider):
         # as the 'response' object.
         for url in response.xpath("//*[@class='mppcell']/a/@href").extract():
             # This loops through all the URLs found inside an element of class 'mppcell'
-            
+
             # Constructs an absolute URL by combining the response’s URL with a possible relative URL:
             full_url = response.urljoin(url)
             print("Found URL: "+full_url)
-            
+
             # The following tells Scrapy to scrape the URL in the 'full_url' variable
             # and calls the 'get_details() method below with the content of this
             # URL:
             yield scrapy.Request(full_url, callback=self.get_details)
-    
+
     def get_details(self, response):
         # This method is called on by the 'parse' method above. It scrapes the URLs
         # that have been extracted in the previous step.
-        
+
         item = OntariomppsItem() # Creating a new Item object
         # Store scraped data into that item:
         item['name'] = response.xpath("normalize-space(//div[@class='mppdetails']/h1/text())").extract_first()
         item['phone'] = response.xpath("normalize-space(//div[@class='phone']/text())").extract_first()
         item['email'] = response.xpath("normalize-space(//div[@class='email']/a/text())").extract_first()
-	    
+
         # Return that item to the main spider method:
         yield item
 ~~~
