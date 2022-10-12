@@ -93,21 +93,21 @@ Carpentry's lesson about the [UNIX shell](http://swcarpentry.github.io/shell-nov
 unsure about how to do that). Then, type the following
 
 ~~~
-scrapy startproject actmps
+scrapy startproject au_gov
 ~~~
 {: .source}
 
-where `actmps` is the name of our project.
+where `au_gov` is the name of our project.
 
 Scrapy should respond will something similar to (the paths will reflect your own file structure)
 
 ~~~
-New Scrapy project 'actmps', using template directory '/Users/thomas/anaconda/lib/python3.5/site-packages/scrapy/templates/project', created in:
-    /Users/thomas/Documents/Computing/python-projects/scrapy/actmps
+New Scrapy project 'au_gov', using template directory '/Users/thomas/anaconda/lib/python3.5/site-packages/scrapy/templates/project', created in:
+    /Users/thomas/Documents/Computing/python-projects/scrapy/au_gov
 
 
 You can start your first spider with:
-    cd actmps
+    cd au_gov
 
     scrapy genspider example example.com
 ~~~
@@ -123,7 +123,7 @@ ls -F
 we should see that a new directory was created:
 
 ~~~
-actmps/
+au_gov/
 ~~~
 {: .output}
 
@@ -131,7 +131,7 @@ actmps/
 directory
 
 ~~~
-cd actmps
+cd au_gov
 ~~~
 {: .source}
 
@@ -143,15 +143,15 @@ ls -F
 {: .source}
 
 ~~~
-actmps/	scrapy.cfg
+au_gov/	scrapy.cfg
 ~~~
 {: .output}
 
-Yes, confusingly, Scrapy creates a subdirectory called `actmps` within the `actmps` project
+Yes, confusingly, Scrapy creates a subdirectory called `au_gov` within the `au_gov` project
 directory. Inside that _second_ directory, we see a bunch of additional files:
 
 ~~~
-ls -F actmps
+ls -F au_gov
 ~~~
 {: .source}
 
@@ -164,10 +164,10 @@ __pycache__	pipelines.py	spiders/
 To recap, here is the structure that `scrapy startproject` created:
 
 ~~~
-actmps/			# the root project directory
+au_gov/			# the root project directory
 	scrapy.cfg		# deploy configuration file
 
-	actmps
+	au_gov
 /		# project's Python module, you'll import your code from here
 		__init__.py
 
@@ -290,7 +290,7 @@ has automatically generated.
 > has ended up in the `allowed_domains` attribute.
 >
 > Is this desired? What do you think would happen
-> if later in our code we wanted to scrape a page living at the address `www.parliament.act.gov.au/members/tenth-assembly-members/kurrajong/barr-andrew2`?
+> if later in our code we wanted to scrape a page living at the address `www.aph.gov.au/Senators_and_Members/Parliamentarian?MPID=R36`?
 > > ## Solution
 > >
 > > `allowed_domains` is a safeguard for our spider, it will restrict its ability to scrape pages
@@ -305,9 +305,9 @@ has automatically generated.
 > > if we set `allowed_domains = ["www.mydomain.ca/"]`, the spider can scrape both the contents of
 > > the `house/` and `garage/` directories.
 > >
-> > To answer the question, leaving `allowed_domains = ["www.parliament.act.gov.au/members/members-of-the-assembly"]`
+> > To answer the question, leaving `allowed_domains = ["www.aph.gov.au/Senators_and_Members/Parliamentarian_Search_Results"]`
 > > would restrict the spider to pages with URLs of the same pattern, and
-> > `www.parliament.act.gov.au/members/tenth-assembly-members/kurrajong/barr-andrew2`
+> > `www.aph.gov.au/Senators_and_Members/Parliamentarian?MPID=R36`
 > > if of a different pattern, so Scrapy would prevent the spider from scraping it.
 > >
 > {: .solution}
@@ -316,11 +316,11 @@ has automatically generated.
 >
 > > ## Solution
 > >
-> > We should let the spider scrape all pages inside the `www.parliament.act.gov.au` domain by editing
+> > We should let the spider scrape all pages inside the `www.aph.gov.au` domain by editing
 > > it so that it reads:
 > >
 > > ~~~
-> > allowed_domains = ["www.parliament.act.gov.au"]
+> > allowed_domains = ["www.aph.gov.au"]
 > > ~~~
 > > {: .source}
 > >
@@ -330,7 +330,7 @@ has automatically generated.
 
 Here is what the spider looks like after cleaning the code a little:
 
-(editing `actmps/actmps/spiders/au_gov_sen.py`)
+(editing `au_gov/au_gov/spiders/au_gov_sen.py`)
 
 ~~~
 import scrapy
@@ -407,7 +407,7 @@ and that data (the actual HTML content of that page) was sent back in response.
 However, we didn't do anything with it, because the `parse` method in our spider is currently empty.
 Let's change that by editing the spider as follows (note the contents of the `parse` method):
 
-(editing `actmps/actmps/spiders/au_gov_sen.py`)
+(editing `au_gov/au_gov/spiders/au_gov_sen.py`)
 
 ~~~
 import scrapy
@@ -439,7 +439,7 @@ ls -F
 {: .source}
 
 ~~~
-actmps/	scrapy.cfg	test.html
+au_gov/	scrapy.cfg	test.html
 ~~~
 {: .output}
 
@@ -689,13 +689,13 @@ to get the "content" that the `selectors` are pointing to, the following methods
 Since we have an XPath query we know will extract the URLs we are looking for, we can now use
 the `xpath()` method and update the spider accordingly:
 
-(editing `actmps/actmps/spiders/mppaddresses.py`)
+(editing `au_gov/au_gov/spiders/au_gov_sen.py`)
 
 ~~~
 import scrapy
 
-class MppaddressesSpider(scrapy.Spider):
-    name = "mppaddresses"
+class AuGovSenSpider(scrapy.Spider):
+    name = "au_gov_sen"
     allowed_domains = ["www.ontla.on.ca"]
     start\_urls = ['http://www.ontla.on.ca/web/members/members_current.do?locale=en/']
 
@@ -724,14 +724,14 @@ class MppaddressesSpider(scrapy.Spider):
 We can now run our new spider:
 
 ~~~
-scrapy crawl mppaddresses
+scrapy crawl au_gov_sen
 ~~~
 {: .source}
 
 which produces a result similar to:
 
 ~~~
-2017-02-26 23:06:10 [scrapy.utils.log] INFO: Scrapy 1.3.2 started (bot: actmps)
+2017-02-26 23:06:10 [scrapy.utils.log] INFO: Scrapy 1.3.2 started (bot: au_gov)
 (...)
 http://www.ontla.on.ca/web/members/members_detail.do?locale=en&ID=2111
 http://www.ontla.on.ca/web/members/members_detail.do?locale=en&ID=2139
@@ -777,8 +777,8 @@ of our project by successfully extracing all URLs leading to the minister profil
 > ~~~
 > import scrapy
 >
->    class MppaddressesSpider(scrapy.Spider):
->        name = "mppaddresses"
+>    class AuGovSenSpider(scrapy.Spider):
+>        name = "au_gov_sen"
 >        allowed_domains = ["www.ontla.on.ca"]
 >        start_urls = ['http://www.ontla.on.ca/web/members/members_current.do?locale=en/']
 >
@@ -801,13 +801,13 @@ our spider to instruct it to visit those pages one by one.
 For this, let's begin by defining a new method `get_details` that we want to run on the detail pages:
 
 
-(editing `actmps/actmps/spiders/mppaddresses.py`)
+(editing `au_gov/au_gov/spiders/au_gov_sen.py`)
 
 ~~~
 import scrapy
 
-class MppaddressesSpider(scrapy.Spider):
-    name = "mppaddresses" # The name of this spider
+class AuGovSenSpider(scrapy.Spider):
+    name = "au_gov_sen" # The name of this spider
 
     # The allowed domain and the URLs where the spider should start crawling:
     allowed_domains = ["www.ontla.on.ca"]
@@ -842,7 +842,7 @@ We've also added some comments to the code to make it easier to read and underst
 If we now run our spider again:
 
 ~~~
-scrapy crawl mppaddresses
+scrapy crawl au_gov_sen
 ~~~
 {: .source}
 
@@ -850,7 +850,7 @@ We should see the result of our `print` statements intersped with the regular Sc
 debugging output, something like:
 
 ~~~
-2017-02-27 20:39:42 [scrapy.utils.log] INFO: Scrapy 1.3.2 started (bot: actmps)
+2017-02-27 20:39:42 [scrapy.utils.log] INFO: Scrapy 1.3.2 started (bot: au_gov)
 (...)
 2017-02-27 20:39:43 [scrapy.core.engine] DEBUG: Crawled (200) <GET http://www.ontla.on.ca/web/members/members_current.do?locale=en/> (referer: None)
 Found URL: http://www.ontla.on.ca/web/members/members_detail.do?locale=en&ID=7085
@@ -1006,13 +1006,13 @@ Once we have found XPath queries to run on the detail pages and are happy with t
 we can add them to the `get_details()` method of our spider:
 
 
-(editing `ontariompps/ontariompps/spiders/mppaddresses.py`)
+(editing `ontariompps/ontariompps/spiders/au_gov_sen.py`)
 
 ~~~
 import scrapy
 
-class MppaddressesSpider(scrapy.Spider):
-    name = "mppaddresses" # The name of this spider
+class AuGovSenSpider(scrapy.Spider):
+    name = "au_gov_sen" # The name of this spider
 
     # The allowed domain and the URLs where the spider should start crawling:
     allowed_domains = ["www.ontla.on.ca"]
@@ -1048,7 +1048,7 @@ class MppaddressesSpider(scrapy.Spider):
 Running our scraper again
 
 ~~~
-scrapy crawl mppaddresses
+scrapy crawl au_gov_sen
 ~~~
 {: .source}
 
@@ -1114,14 +1114,14 @@ class OntariomppsItem(scrapy.Item):
 
 Then save this file. We can then edit our spider one more time:
 
-(editing `ontariompps/ontariompps/spiders/mppaddresses.py`)
+(editing `ontariompps/ontariompps/spiders/au_gov_sen.py`)
 
 ~~~
 import scrapy
 from ontariompps.items import OntariomppsItem # We need this so that Python knows about the item object
 
-class MppaddressesSpider(scrapy.Spider):
-    name = "mppaddresses" # The name of this spider
+class AuGovSenSpider(scrapy.Spider):
+    name = "au_gov_sen" # The name of this spider
 
     # The allowed domain and the URLs where the spider should start crawling:
     allowed_domains = ["www.ontla.on.ca"]
@@ -1170,7 +1170,7 @@ We made two significant changes to the file above:
 If we now run our spider again:
 
 ~~~
-scrapy crawl mppaddresses
+scrapy crawl au_gov_sen
 ~~~
 {: .source}
 
@@ -1199,7 +1199,7 @@ But let's now try running the spider with an extra `-o` ('o' for 'output') argum
 specifies the name of an output file with a `.csv` file extension:
 
 ~~~
-scrapy crawl mppaddresses -o output.csv
+scrapy crawl au_gov_sen -o output.csv
 ~~~
 {: .source}
 
@@ -1234,14 +1234,14 @@ for a full list of supported formats.
 Now that everything looks to be in place, we can finally remove our limit to the number
 of scraped elements...
 
-(editing `ontariompps/ontariompps/spiders/mppaddresses.py`)
+(editing `ontariompps/ontariompps/spiders/au_gov_sen.py`)
 
 ~~~
 import scrapy
 from ontariompps.items import OntariomppsItem # We need this so that Python knows about the item object
 
-class MppaddressesSpider(scrapy.Spider):
-    name = "mppaddresses" # The name of this spider
+class AuGovSenSpider(scrapy.Spider):
+    name = "au_gov_sen" # The name of this spider
 
     # The allowed domain and the URLs where the spider should start crawling:
     allowed_domains = ["www.ontla.on.ca"]
@@ -1283,7 +1283,7 @@ class MppaddressesSpider(scrapy.Spider):
 ... and run our spider one last time:
 
 ~~~
-scrapy crawl mppaddresses -o mppaddresses.csv
+scrapy crawl au_gov_sen -o au_gov_sen.csv
 ~~~
 {: .source}
 
