@@ -1043,10 +1043,11 @@ class AuGovSenSpider(scrapy.Spider):
     def get_details(self, response):
         # This method is called on by the 'parse' method above. It scrapes the URLs
         # that have been extracted in the previous step.
-        name_detail = response.xpath("normalize-space(//div[@class='mppdetails']/h1/text())").extract_first()
-        phone_detail = response.xpath("normalize-space(//div[@class='phone']/text())").extract_first()
-        email_detail = response.xpath("normalize-space(//div[@class='email']/a/text())").extract_first()
-        print("Found details: " + name_detail + ', ' + phone_detail + ', ' + email_detail)
+        name_detail = response.xpath("//h1/text()").extract_first()
+        phone_detail = response.xpath("//dd/a/text()").extract_first()
+		addr_lines = response.xpath("//*[contains(text(),'Postal')]/following-sibling::p/text()").extract()
+		mail_detail = ', '.join(line.strip() for line in addr_lines)
+        print("Found details: " + name_detail + ', ' + phone_detail + ', ' + mail_detail)
 ~~~
 {: .source}
 
@@ -1060,16 +1061,16 @@ scrapy crawl au_gov_sen
 produces something like
 
 ~~~
-2017-02-27 20:39:42 [scrapy.utils.log] INFO: Scrapy 1.3.2 started (bot: au_gov)
+2022-10-13 01:55:08 [scrapy.utils.log] INFO: Scrapy 2.3.0 started (bot: au_gov)
 (...)
-2017-02-27 20:39:43 [scrapy.core.engine] DEBUG: Crawled (200) <GET http://www.ontla.on.ca/web/members/members_current.do?locale=en/> (referer: None)
-Found URL: http://www.ontla.on.ca/web/members/members_detail.do?locale=en&ID=7085
-Found URL: http://www.ontla.on.ca/web/members/members_detail.do?locale=en&ID=7275
+2022-10-13 01:55:10 [scrapy.core.engine] DEBUG: Crawled (200) <GET https://www.aph.gov.au/Senators_and_Members/Parliamentarian_Search_Results/> (referer: None)
+Found URL: https://www.aph.gov.au/Senators_and_Members/Parliamentarian?MPID=R36
+Found URL: https://www.aph.gov.au/Senators_and_Members/Parliamentarian?MPID=298839
 (...)
-Found details: Ted Arnott, MPP (Wellington—Halton Hills), 416-325-3880, ted.arnott@pc.ola.org
-Found details: Teresa J. Armstrong, MPP (London—Fanshawe), 416-325-1872, tarmstrong-qp@ndp.on.ca
+Found details: Hon Karen Andrews MP, (07) 5580 9111, PO Box 409, Varsity Lakes, QLD, 4227
+Found details: Senator Penny Allman-Payne, (07) 3001 8170, GPO Box 228, Brisbane, QLD, 4001
 (...)
-2017-02-27 20:39:44 [scrapy.core.engine] INFO: Closing spider (finished)
+2022-10-13 01:55:11 [scrapy.core.engine] INFO: Closing spider (finished)
 ~~~
 {: .output}
 
@@ -1089,14 +1090,14 @@ Before we can begin using Items, we need to define their structure. Using our ed
 let's navigate and edit the following file that Scrapy has created for us when we
 first created our project: `au_gov/au_gov/items.py`
 
-Scrapy has pre-populated this file with an empty "OntariomppsItem" class:
+Scrapy has pre-populated this file with an empty "AuGovItem" class:
 
 (editing `au_gov/au_gov/items.py`)
 
 ~~~
 import scrapy
 
-class OntariomppsItem(scrapy.Item):
+class AuGovItem(scrapy.Item):
     # define the fields for your item here like:
     # name = scrapy.Field()
     pass
@@ -1109,7 +1110,7 @@ for each politician:
 ~~~
 import scrapy
 
-class OntariomppsItem(scrapy.Item):
+class AuGovItem(scrapy.Item):
     # define the fields for your item here like:
     name = scrapy.Field()
     phone = scrapy.Field()
@@ -1123,7 +1124,7 @@ Then save this file. We can then edit our spider one more time:
 
 ~~~
 import scrapy
-from au_gov.items import OntariomppsItem # We need this so that Python knows about the item object
+from au_gov.items import AuGovItem # We need this so that Python knows about the item object
 
 class AuGovSenSpider(scrapy.Spider):
     name = "au_gov_sen" # The name of this spider
@@ -1153,7 +1154,7 @@ class AuGovSenSpider(scrapy.Spider):
         # This method is called on by the 'parse' method above. It scrapes the URLs
         # that have been extracted in the previous step.
 
-        item = OntariomppsItem() # Creating a new Item object
+        item = AuGovItem() # Creating a new Item object
         # Store scraped data into that item:
         item['name'] = response.xpath("normalize-space(//div[@class='mppdetails']/h1/text())").extract_first()
         item['phone'] = response.xpath("normalize-space(//div[@class='phone']/text())").extract_first()
@@ -1166,9 +1167,9 @@ class AuGovSenSpider(scrapy.Spider):
 {: .source}
 
 We made two significant changes to the file above:
-* We've included the line `from au_gov.items import OntariomppsItem` at the top. This is required
-  so that our spider knows about the `OntariomppsItem` object we've just defined.
-* We've also replaced the `print` statements in `get_details()` with the creation of an `OntariomppsItem`
+* We've included the line `from au_gov.items import AuGovItem` at the top. This is required
+  so that our spider knows about the `AuGovItem` object we've just defined.
+* We've also replaced the `print` statements in `get_details()` with the creation of an `AuGovItem`
   object, in which fields we are now storing the scraped data. The item is then passed back to the
   main spider method using the `yield` statement.
 
@@ -1182,16 +1183,18 @@ scrapy crawl au_gov_sen
 we see something like
 
 ~~~
-2017-02-27 21:53:52 [scrapy.utils.log] INFO: Scrapy 1.3.2 started (bot: au_gov)
+2022-10-13 02:03:52 [scrapy.utils.log] INFO: Scrapy 2.3.0 started (bot: au_gov)
 (...)
-2017-02-27 21:53:54 [scrapy.core.scraper] DEBUG: Scraped from <200 http://www.ontla.on.ca/web/members/members_detail.do?locale=en&ID=7085>
-{'email': 'lalbanese.mpp@liberal.ola.org',
- 'name': 'Hon Laura Albanese, MPP (York South—Weston)',
- 'phone': '416-325-6200'}
-2017-02-27 21:53:54 [scrapy.core.scraper] DEBUG: Scraped from <200 http://www.ontla.on.ca/web/members/members_detail.do?locale=en&ID=7183>
-{'email': 'tarmstrong-qp@ndp.on.ca',
- 'name': 'Teresa J. Armstrong, MPP (London—Fanshawe)',
- 'phone': '416-325-1872'}
+2022-10-13 02:03:57 [scrapy.core.scraper] DEBUG: Scraped from <200 https://www.aph.gov.au/Senators_and_Members/Parliamentarian?MPID=R36>
+{'mail': 'PO Box 5100, Marrickville, NSW, 2204',
+ 'name': 'Hon Anthony Albanese MP',
+ 'phone': '(02) 9564 3588'}
+2022-10-13 02:03:57 [scrapy.core.scraper] DEBUG: Scraped from <200 https://www.aph.gov.au/Senators_and_Members/Parliamentarian?MPID=230886>
+{'mail': 'PO Box 409, Varsity Lakes, QLD, 4227',
+ 'name': 'Hon Karen Andrews MP',
+ 'phone': '(07) 5580 9111'}
+2022-10-13 02:03:57 [scrapy.core.scraper] DEBUG: Scraped from <200 https://www.aph.gov.au/Senators_and_Members/Parliamentarian?MPID=290544>
+{'mail': '', 'name': 'Dr Michelle Ananda-Rajah MP', 'phone': '(03) 9822 4422'}
 (...)
 2017-02-27 21:53:54 [scrapy.core.engine] INFO: Spider closed (finished)
 ~~~
@@ -1222,12 +1225,12 @@ cat output.csv
 Returns
 
 ~~~
-email,name,phone
-bob.bailey@pc.ola.org,"Robert Bailey, MPP (Sarnia—Lambton)",416-325-1715
-ganderson.mpp.co@liberal.ola.org,"Granville Anderson, MPP (Durham)",416-325-5494
-ted.arnott@pc.ola.org,"Ted Arnott, MPP (Wellington—Halton Hills)",416-325-3880
-lalbanese.mpp@liberal.ola.org,"Hon Laura Albanese, MPP (York South—Weston)",416-325-6200
-tarmstrong-qp@ndp.on.ca,"Teresa J. Armstrong, MPP (London—Fanshawe)",416-325-1872
+phone,mail,name
+(03) 9822 4422,,Dr Michelle Ananda-Rajah MP
+(07) 3001 8170,"GPO Box 228, Brisbane, QLD, 4001",Senator Penny Allman-Payne
+(02) 9564 3588,"PO Box 5100, Marrickville, NSW, 2204",Hon Anthony Albanese MP
+(08) 9409 4517,"PO Box 219, Kingsway, WA, 6065",Hon Dr Anne Aly MP
+(07) 5580 9111,"PO Box 409, Varsity Lakes, QLD, 4227",Hon Karen Andrews MP
 ~~~
 {: .output}
 
@@ -1243,20 +1246,19 @@ of scraped elements...
 
 ~~~
 import scrapy
-from au_gov.items import OntariomppsItem # We need this so that Python knows about the item object
+from au_gov.items import AuGovItem # We need this so that Python knows about the item object
 
 class AuGovSenSpider(scrapy.Spider):
-    name = "au_gov_sen" # The name of this spider
-
-    # The allowed domain and the URLs where the spider should start crawling:
-    allowed_domains = ["www.ontla.on.ca"]
-    start_urls = ['http://www.ontla.on.ca/web/members/members_current.do?locale=en/']
+    name = 'au_gov_sen'
+    allowed_domains = ['www.aph.gov.au']
+    start_urls = ['http://www.aph.gov.au/Senators_and_Members/Parliamentarian_Search_Results/']
 
     def parse(self, response):
         # The main method of the spider. It scrapes the URL(s) specified in the
         # 'start_url' argument above. The content of the scraped URL is passed on
         # as the 'response' object.
-        for url in response.xpath("//*[@class='mppcell']/a/@href").extract():
+
+        for url in response.xpath("//h4[@class='title']/a/@href").extract():
             # This loops through all the URLs found inside an element of class 'mppcell'
 
             # Constructs an absolute URL by combining the response’s URL with a possible relative URL:
@@ -1271,14 +1273,11 @@ class AuGovSenSpider(scrapy.Spider):
     def get_details(self, response):
         # This method is called on by the 'parse' method above. It scrapes the URLs
         # that have been extracted in the previous step.
-
-        item = OntariomppsItem() # Creating a new Item object
-        # Store scraped data into that item:
-        item['name'] = response.xpath("normalize-space(//div[@class='mppdetails']/h1/text())").extract_first()
-        item['phone'] = response.xpath("normalize-space(//div[@class='phone']/text())").extract_first()
-        item['email'] = response.xpath("normalize-space(//div[@class='email']/a/text())").extract_first()
-
-        # Return that item to the main spider method:
+        item = ActmpsItem()
+        item['name'] = response.xpath("//h1/text()").extract_first()
+        item['phone'] = response.xpath("//dd/a/text()").extract_first()
+        addr_lines = response.xpath("//*[contains(text(),'Postal')]/following-sibling::p/text()").extract()
+        item['mail'] = ', '.join(line.strip() for line in addr_lines)
         yield item
 ~~~
 {: .source}
@@ -1294,7 +1293,7 @@ scrapy crawl au_gov_sen -o au_gov_sen.csv
 
 > ## Add other data elements to the spider
 >
-> Try modifying the spider code to add more data extracted from the MPP detail page.
+> Try modifying the spider code to add more data extracted from the Austrlian Parliament pages.
 > Remember to edit the Item definition to allow for all extracted fields to be taken
 > care of.
 >
