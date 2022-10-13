@@ -451,14 +451,18 @@ less test.html
 {: .source}
 
 ~~~
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" >
-<head>
+<!doctype html>
+(...)
+<html class="no-js" lang="en" xml:lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<!--<![endif]-->
+
+<head id="Head1">
 (...)
 <title>
-Legislative Assembly of Ontario |
-Members (MPPs) |
-Current MPPs</title>
+        Senators & Members Search Results
+        
+     &ndash; Parliament of Australia
+</title>
 (...)_
 ~~~
 {: .output}
@@ -700,7 +704,7 @@ class AuGovSenSpider(scrapy.Spider):
     start\_urls = ['http://www.ontla.on.ca/web/members/members_current.do?locale=en/']
 
     def parse(self, response):
-        for url in response.xpath("//*[@class='mppcell']/a/@href").extract():
+        for url in response.xpath("//h4[@class='title']/a/@href").extract():
             print(response.urljoin(url))
 ~~~
 {: .source}
@@ -731,14 +735,14 @@ scrapy crawl au_gov_sen
 which produces a result similar to:
 
 ~~~
-2017-02-26 23:06:10 [scrapy.utils.log] INFO: Scrapy 1.3.2 started (bot: au_gov)
+2022-10-12 23:38:01 [scrapy.utils.log] INFO: Scrapy 2.3.0 started (bot: au_gov)
 (...)
-http://www.ontla.on.ca/web/members/members_detail.do?locale=en&ID=2111
-http://www.ontla.on.ca/web/members/members_detail.do?locale=en&ID=2139
-http://www.ontla.on.ca/web/members/members_detail.do?locale=en&ID=7174
-http://www.ontla.on.ca/web/members/members_detail.do?locale=en&ID=2148
+https://www.aph.gov.au/Senators_and_Members/Parliamentarian?MPID=R36
+https://www.aph.gov.au/Senators_and_Members/Parliamentarian?MPID=298839
+https://www.aph.gov.au/Senators_and_Members/Parliamentarian?MPID=13050
+https://www.aph.gov.au/Senators_and_Members/Parliamentarian?MPID=290544
 (...)
-2017-02-26 23:06:11 [scrapy.core.engine] INFO: Spider closed (finished)
+2022-10-12 23:38:03 [scrapy.core.engine] INFO: Closing spider (finished)
 ~~~
 {: .output}
 
@@ -748,7 +752,7 @@ of our project by successfully extracing all URLs leading to the minister profil
 > ## Limit the number of URL to scrape through while debugging
 >
 > We've seen by testing the code above that we are able to successfully gather all URLs from
-> the list of MPPs. But while we're working through to the final code that will allow us
+> the list of Parliament Members. But while we're working through to the final code that will allow us
 > the extract the data we want from those pages, it's probably a good idea to only run it
 > on a handful of pages at a time.
 >
@@ -810,15 +814,15 @@ class AuGovSenSpider(scrapy.Spider):
     name = "au_gov_sen" # The name of this spider
 
     # The allowed domain and the URLs where the spider should start crawling:
-    allowed_domains = ["www.ontla.on.ca"]
-    start_urls = ['http://www.ontla.on.ca/web/members/members_current.do?locale=en/']
+    allowed_domains = ["www.aph.gov.au"]
+    start_urls = ['http://www.aph.gov.au/Senators_and_Members/Parliamentarian_Search_Results/']
 
     def parse(self, response):
         # The main method of the spider. It scrapes the URL(s) specified in the
         # 'start_url' argument above. The content of the scraped URL is passed on
         # as the 'response' object.
 
-        for url in response.xpath("//*[@class='mppcell']/a/@href").extract()[:5]:
+        for url in response.xpath("//h4[@class='title']/a/@href").extract()[:5]:
             # This loops through all the URLs found inside an element of class 'mppcell'
 			
             # Constructs an absolute URL by combining the response’s URL with a possible relative URL:
@@ -850,21 +854,17 @@ We should see the result of our `print` statements intersped with the regular Sc
 debugging output, something like:
 
 ~~~
-2017-02-27 20:39:42 [scrapy.utils.log] INFO: Scrapy 1.3.2 started (bot: au_gov)
 (...)
-2017-02-27 20:39:43 [scrapy.core.engine] DEBUG: Crawled (200) <GET http://www.ontla.on.ca/web/members/members_current.do?locale=en/> (referer: None)
-Found URL: http://www.ontla.on.ca/web/members/members_detail.do?locale=en&ID=7085
-Found URL: http://www.ontla.on.ca/web/members/members_detail.do?locale=en&ID=7275
+Found URL: https://www.aph.gov.au/Senators_and_Members/Parliamentarian?MPID=13050
+Found URL: https://www.aph.gov.au/Senators_and_Members/Parliamentarian?MPID=290544
+Found URL: https://www.aph.gov.au/Senators_and_Members/Parliamentarian?MPID=230886
 (...)
-2017-02-27 20:39:44 [scrapy.core.engine] DEBUG: Crawled (200) <GET http://www.ontla.on.ca/web/members/members_detail.do?locale=en&ID=7085> (referer: http://www.ontla.on.ca/web/members/members_current.do?locale=en/)
+Visited URL: https://www.aph.gov.au/Senators_and_Members/Parliamentarian?MPID=R36
+Visited URL: https://www.aph.gov.au/Senators_and_Members/Parliamentarian?MPID=13050
 (...)
-Visited URL: http://www.ontla.on.ca/web/members/members_detail.do?locale=en&ID=7085
+Visited URL: https://www.aph.gov.au/Senators_and_Members/Parliamentarian?MPID=290544
+Visited URL: https://www.aph.gov.au/Senators_and_Members/Parliamentarian?MPID=298839
 (...)
-2017-02-27 20:39:44 [scrapy.core.engine] DEBUG: Crawled (200) <GET http://www.ontla.on.ca/web/members/members_detail.do?locale=en&ID=7086> (referer: http://www.ontla.on.ca/web/members/members_current.do?locale=en/)
-(...)
-Visited URL: http://www.ontla.on.ca/web/members/members_detail.do?locale=en&ID=7225
-(...)
-2017-02-27 20:39:44 [scrapy.core.engine] INFO: Closing spider (finished)
 ~~~
 {: .output}
 
@@ -901,20 +901,20 @@ data that we want out of them. In our example, we are primarily looking
 to extract the following details:
 
 * Phone number(s)
-* Email address(es)
+* Mailing address(es)
 
 Unfortunately, it looks like the content of those pages is not consistent. Sometimes, only
-one email address is displayed, sometimes more than one. Some MPPs have one Constituency
+one email address is displayed, sometimes more than one. Some Parliament Members have one Constituency
 address, others have more than one, etc.
 
 To simplify, we are going to stop at the first phone number and the first
-email address we find on those pages, although in a real life scenario we might be interested
+mailing address we find on those pages, although in a real life scenario we might be interested
 in writing more precise queries to make sure we are collecting the right information.
 
-> ## Scrape phone number and email address
-> Write XPath queries to scrape the first phone number and the first email address
+> ## Scrape phone number and mailing address
+> Write XPath queries to scrape the first phone number and the first mailing address
 > displayed on each of the detail pages that are linked from
-> the [Ontario MPPs list](http://www.ontla.on.ca/web/members/members_current.do?locale=en).
+> the [Australian Parliament Members list](https://www.aph.gov.au/Senators_and_Members/Parliamentarian_Search_Results).
 >
 > Try out your queries on a handful of detail pages to make sure you are getting
 > consistent results.
@@ -934,25 +934,30 @@ in writing more precise queries to make sure we are collecting the right informa
 > > This returns an array of phone (and fax) numbers (using the Scrapy shell):
 > >
 > > ~~~
-> > scrapy shell "http://www.ontla.on.ca/web/members/members_detail.do?locale=en&ID=7085"
-> > >>> response.xpath("//div[@class='phone']/text()").extract()
+> > scrapy shell "https://www.aph.gov.au/Senators_and_Members/Parliamentarian?MPID=R36"
+> > >>> response.xpath("//dd/a").extract()
 > > ~~~
 > > {: .source}
 > >
 > > ~~~
-> > [['\n416-325-6200\n', '\n416-325-6195\n', '\n416-243-7984\n', '\n416-243-0327\n']
+> > ['<a href="tel:+61295643588">(02) 9564 3588</a>',
+> >  '<a href="tel:+61262777700">(02) 6277 7700</a>',
+> >  '<a aria-label="Open personal website" href="http://www.anthonyalbanese.com.au" target="_blank" rel="noopener noreferrer">Personal website<i aria-hidden="true" class="fa fa-external-link"></i></a>',
+> >  '<a aria-label="Open party website" href="http://www.alp.org.au/" target="_blank" rel="noopener noreferrer">Party website <i aria-hidden="true" class="fa fa-external-link"></i></a>',
+> >  '<a aria-label="Open other website" href="http://www.pm.gov.au/" target="_blank" rel="noopener noreferrer">Prime Minister\'s website <i aria-hidden="true" class="fa fa-external-link"></i></a>',
+> >  '<a aria-label="Open other website" href="http://www.peo.gov.au" target="_blank" rel="noopener noreferrer">Parliamentary Education Office <i aria-hidden="true" class="fa fa-external-link"></i></a>']
 > > ~~~
 > > {: .output}
 > >
-> > And this returns an array of email addresses:
+> > And this returns an array of mailing addresses:
 > >
 > > ~~~
-> > >>> response.xpath("//div[@class='email']/a/text()").extract()
+> > >>> response.xpath("//*[contains(text(),'Postal')]/following-sibling::p").extract()
 > > ~~~
 > > {: .source}
 > >
 > > ~~~
-> > ['\nlalbanese.mpp@liberal.ola.org\n', '\nlalbanese.mpp.co@liberal.ola.org\n']
+> > ['<p>\r\n                                        PO Box 5100<br>\r\n                                        Marrickville, NSW, 2204\r\n                                        \r\n                                    </p>']
 > > ~~~
 > > {: .output}
 > >
@@ -988,12 +993,12 @@ in writing more precise queries to make sure we are collecting the right informa
 > >
 > > ~~~
 > > scrapy shell "http://www.ontla.on.ca/web/members/members_detail.do?locale=en&ID=7085"
-> > >>> response.xpath('//body').re(r'\d{3}-\d{3}-\d{4}')
+> > >>> response.xpath('//body').re(r'\S\d{2}\S\s\d{4}\s\d{4}')
 > > ~~~
 > > {: .source}
 > >
 > > ~~~
-> > ['416-325-6200', '416-325-6195', '416-243-7984', '416-243-0327']
+> > ['(02) 9564 3588', '(02) 9564 1734', '(02) 6277 7700', '(02) 6273 4100']
 > > ~~~
 > > {: .output}
 > >
@@ -1006,7 +1011,7 @@ Once we have found XPath queries to run on the detail pages and are happy with t
 we can add them to the `get_details()` method of our spider:
 
 
-(editing `ontariompps/ontariompps/spiders/au_gov_sen.py`)
+(editing `au_gov/au_gov/spiders/au_gov_sen.py`)
 
 ~~~
 import scrapy
@@ -1055,7 +1060,7 @@ scrapy crawl au_gov_sen
 produces something like
 
 ~~~
-2017-02-27 20:39:42 [scrapy.utils.log] INFO: Scrapy 1.3.2 started (bot: ontariompps)
+2017-02-27 20:39:42 [scrapy.utils.log] INFO: Scrapy 1.3.2 started (bot: au_gov)
 (...)
 2017-02-27 20:39:43 [scrapy.core.engine] DEBUG: Crawled (200) <GET http://www.ontla.on.ca/web/members/members_current.do?locale=en/> (referer: None)
 Found URL: http://www.ontla.on.ca/web/members/members_detail.do?locale=en&ID=7085
@@ -1082,11 +1087,11 @@ each item are columns.
 
 Before we can begin using Items, we need to define their structure. Using our editor,
 let's navigate and edit the following file that Scrapy has created for us when we
-first created our project: `ontariompps/ontariompps/items.py`
+first created our project: `au_gov/au_gov/items.py`
 
 Scrapy has pre-populated this file with an empty "OntariomppsItem" class:
 
-(editing `ontariompps/ontariompps/items.py`)
+(editing `au_gov/au_gov/items.py`)
 
 ~~~
 import scrapy
@@ -1114,11 +1119,11 @@ class OntariomppsItem(scrapy.Item):
 
 Then save this file. We can then edit our spider one more time:
 
-(editing `ontariompps/ontariompps/spiders/au_gov_sen.py`)
+(editing `au_gov/au_gov/spiders/au_gov_sen.py`)
 
 ~~~
 import scrapy
-from ontariompps.items import OntariomppsItem # We need this so that Python knows about the item object
+from au_gov.items import OntariomppsItem # We need this so that Python knows about the item object
 
 class AuGovSenSpider(scrapy.Spider):
     name = "au_gov_sen" # The name of this spider
@@ -1161,7 +1166,7 @@ class AuGovSenSpider(scrapy.Spider):
 {: .source}
 
 We made two significant changes to the file above:
-* We've included the line `from ontariompps.items import OntariomppsItem` at the top. This is required
+* We've included the line `from au_gov.items import OntariomppsItem` at the top. This is required
   so that our spider knows about the `OntariomppsItem` object we've just defined.
 * We've also replaced the `print` statements in `get_details()` with the creation of an `OntariomppsItem`
   object, in which fields we are now storing the scraped data. The item is then passed back to the
@@ -1177,7 +1182,7 @@ scrapy crawl au_gov_sen
 we see something like
 
 ~~~
-2017-02-27 21:53:52 [scrapy.utils.log] INFO: Scrapy 1.3.2 started (bot: ontariompps)
+2017-02-27 21:53:52 [scrapy.utils.log] INFO: Scrapy 1.3.2 started (bot: au_gov)
 (...)
 2017-02-27 21:53:54 [scrapy.core.scraper] DEBUG: Scraped from <200 http://www.ontla.on.ca/web/members/members_detail.do?locale=en&ID=7085>
 {'email': 'lalbanese.mpp@liberal.ola.org',
@@ -1234,11 +1239,11 @@ for a full list of supported formats.
 Now that everything looks to be in place, we can finally remove our limit to the number
 of scraped elements...
 
-(editing `ontariompps/ontariompps/spiders/au_gov_sen.py`)
+(editing `au_gov/au_gov/spiders/au_gov_sen.py`)
 
 ~~~
 import scrapy
-from ontariompps.items import OntariomppsItem # We need this so that Python knows about the item object
+from au_gov.items import OntariomppsItem # We need this so that Python knows about the item object
 
 class AuGovSenSpider(scrapy.Spider):
     name = "au_gov_sen" # The name of this spider
